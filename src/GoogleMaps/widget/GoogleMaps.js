@@ -1,5 +1,5 @@
 /*jslint white:true, nomen: true, plusplus: true */
-/*global mx, define, require, browser, devel, console, google, window */
+/*global mx, define, require, browser, devel, console, google, window, mendix */
 
 define([
     'dojo/_base/declare', 
@@ -23,6 +23,8 @@ define([
         _markerCache: null,
         _googleScript: null,
         _defaultPosition: null,
+        _infoWindow: null,
+        _infoWindowNode: null,
 
         postCreate: function () {
             if (google && !google.maps) {
@@ -208,6 +210,32 @@ define([
                 position: new google.maps.LatLng(lat, lng),
                 map: this._googleMap
             });
+            
+            if (this.markerPageName) {
+                if (this._infoWindow === null) {
+                    this._infoWindowNode = domConstruct.toDom("<div></div>");
+                    this._infoWindow = new google.maps.InfoWindow({
+                        content: this._infoWindowNode
+                    });
+                }
+                
+                marker.addListener("click", lang.hitch(this, function() {
+                    var ctxt = new mendix.lib.MxContext();
+                    ctxt.setTrackObject(obj);
+                    
+                    domConstruct.empty(this._infoWindowNode);
+
+                    mx.ui.openForm(this.markerPageName + ".page.xml", {
+                                domNode: this._infoWindowNode,
+                                context: ctxt,
+                                error: function (err) {
+                                    console.error("FormLoader widget could not load the form: " + err);
+                                }
+                            });
+                    
+                    this._infoWindow.open(this._googleMap, marker);
+                }));
+            }
 
             if (id) {
                 marker.id = id;

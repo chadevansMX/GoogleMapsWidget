@@ -145,6 +145,11 @@
                 </property>
             </properties>
         </property>
+        <property key="markerPageName" type="string" required="false">
+            <caption>Marker Page Name</caption>
+            <category>Behavior</category>
+            <description>Specify the full Page Name, in "Module/Page" format, to display when clicking on a marker.</description>
+        </property>
     </properties>
 </widget>
 
